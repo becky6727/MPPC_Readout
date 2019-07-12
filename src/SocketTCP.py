@@ -1,10 +1,15 @@
 import socket
+import logging
+from logging import getLogger, StreamHandler, Formatter, FileHandler
 
 #----------------------------------------------------#
 # class for socket connection for TCP/IP
 # safer transfer/recieve data from readout module
 # ver1.0: 2019/07/11 Y.Kibe
 #----------------------------------------------------#
+
+logger = getLogger('DAQ log').getChild('SocketTCP')
+#logger.setLevel(logging.DEBUG)
 
 class SocketTCP:
 
@@ -18,7 +23,20 @@ class SocketTCP:
     
     #connect module at host(IP) and port
     def ConnectTCP(self, IP, port):
-        self.sock.connect((IP, port))
+        try:
+            self.sock.connect((IP, port))
+            #print 'Success to connect with TCP/IP'
+            logger.info('Success to connect with TCP/IP')
+            return 0
+        except socket.error as e:
+            #print '***** !CONNENCTION ERROR! *****'
+            #print e
+            logger.error('***** !CONNENCTION ERROR! *****')
+            logger.error(e)
+            #print type(e)
+            return -1
+            pass
+        
     
     def SendTCP(self, Data):
         TotalSent = 0
@@ -28,7 +46,7 @@ class SocketTCP:
             if(SentLength == 0):
                 raise RuntimeError('socket conncetion(send) is broken!')
             TotalSent = TotalSent + SentLength
-
+            
     #MSGLEN is length of sent Data by SendTCP
     def RecvTCP(self, MSGLEN = None):
         if(MSGLEN == None):
