@@ -1,1 +1,28 @@
-#test
+{
+    "FPGA_Setting":{
+	"Set1":{
+	    "ParName":["none", "Raz_Ch", "Val_Evt", "none", "en_link", "none", "test_r", "test_sc"],
+	    "Value":[0, 0, 1, 0, 1, 0, 0, 0]
+	},
+	"Set2":{
+	    "ParName":["load", "cycle", "none", "none", "rst_pa", "select", "rst_r", "rst_sc"],
+	    "Value":[0, 0, 0, 0, 1, 1, 1, 1]
+	},
+	"Set3":{
+	    "ParName":["none", "none", "none", "none", "none", "none", "none", "none"],
+	    "Value":[0, 0, 0, 0, 0, 0, 0, 0]
+	},
+	"Set4":{
+	    "ParName":["pwr_on", "none", "none", "none", "none", "Scurve", "rst_Scu", "none"],
+	    "Value":[1, 0, 0, 0, 0, 0, 0, 0]
+	},
+	"Set5":{
+	    "ParName":["none", "none", "gene", "Scurve0", "Scurve1", "none", "none", "none"],
+	    "Value":[0, 0, 0, 0, 0, 0, 0, 0]
+	}
+    },
+    "SlowCtrl_Setting":{
+	"ChipA":{},
+	"ChipB":{}
+    }
+}
