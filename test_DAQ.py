@@ -4,6 +4,9 @@ import socket
 import argparse
 import src.SocketTCP as SocketTCP
 import struct
+import logging
+from logging import getLogger, StreamHandler, Formatter, FileHandler
+import src.SetFPGA as SetFPGA
 
 #---settings for EASIROC module at NPTC--------
 # IPAddr = '192.168.10.11'
@@ -25,8 +28,34 @@ parser.add_argument('-port',
                     default = '50007',
                     help = 'set Port ID for TCP/IP connection to readout module')
 
+parser.add_argument('-config',
+                    type = str,
+                    dest = 'FileConfig',
+                    default = './config/Settings.json',
+                    help = 'set configuration file')
+
 args = parser.parse_args()
 
+#log file settings
+Log = 'test.log'
+logger = getLogger('DAQ log')
+logger.setLevel(logging.DEBUG)
+
+handler_format = Formatter('%(asctime)s: %(name)s, %(levelname)s, %(message)s')
+
+stream_handler = StreamHandler()
+stream_handler.setLevel(logging.DEBUG)
+#stream_handler.setLevel(logging.ERROR) #if want to show no info
+stream_handler.setFormatter(Formatter('%(message)s'))
+
+file_handler = FileHandler(Log, 'a')
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(handler_format)
+
+logger.addHandler(stream_handler)
+logger.addHandler(file_handler)
+
+#IP address and port ID for TCP/IP
 IPAddr = args.IPAddr
 PortID = args.PortID
 
@@ -38,28 +67,35 @@ Timeval = struct.pack('ll', Sec, uSec)
 #socket for TCP/IP and optional settings
 SockTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 SockTCP.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, Timeval)
+SockTCP.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
 #class for safer transfer/recieving
 DAQSockTCP = SocketTCP.SocketTCP(SockTCP)
 
 #connection
-DAQSockTCP.ConnectTCP(IPAddr, PortID)
+isConnectTCP = DAQSockTCP.ConnectTCP(IPAddr, PortID)
 
-#dummy data
-Data = 1 << 16
-Data += 240 << 8
-#Data += 3 << 8
-Data = format(Data, '032b')
+#if connection error occur...
+if(isConnectTCP < 0):
+    sys.exit()
+    pass
 
-DAQSockTCP.SendTCP(Data)
+#load configuration file
+FileConfig = args.FileConfig
+ConfigDict = json.load(open(FileConfig, 'r'))
 
-Recv = DAQSockTCP.RecvTCP(len(Data))
-#Recv = DAQSockTCP.RecvTCP()
+#initialize and set parameters of FPGA
+InitializeFPGA = SetFPGA.SetFPGA(SockTCP, ConfigDict)
 
-print repr('Recieved Data = '+Recv), int(Recv, 2)
+for i in xrange(0, 5):
+    InitializeFPGA.SetParameter(i)
+    time.sleep(0.01) #wait 10usec before next step
+    pass
 
-#confirm connection
-#time.sleep(30)
+#wait 0.1sec before next step...
+time.sleep(0.1)
+
+#initialize Slow Control(Chip-A)
 
 #close
 DAQSockTCP.CloseTCP()
