@@ -1,6 +1,7 @@
 *~
 *.dat
 *.txt
+*.log
 trush/
 src/*~
 config/*~
