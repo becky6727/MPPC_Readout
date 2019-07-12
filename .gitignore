@@ -2,3 +2,5 @@
 *.dat
 *.txt
 trush/
+src/*~
+config/*~
