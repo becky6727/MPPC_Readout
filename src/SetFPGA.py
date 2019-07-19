@@ -10,10 +10,6 @@ from logging import getLogger, StreamHandler, Formatter, FileHandler
 logger = getLogger('DAQ log').getChild('SetFPGA')
 #logger.setLevel(logging.DEBUG)
 
-KeyName1 = 'FPGA_Setting'
-KeyName3 = 'Value'
-KeyName4 = 'ParName'
-
 class SetFPGA:
 
     def __init__(self, sock, Dict):
@@ -28,8 +24,8 @@ class SetFPGA:
             return -1
 
         KeyName = 'Set%d' %(ID + 1)
-        ParList = self.Dict[KeyName1][KeyName][KeyName3]
-        ParName = self.Dict[KeyName1][KeyName][KeyName4]
+        ParList = self.Dict['FPGA_Setting'][KeyName]['Value']
+        ParName = self.Dict['FPGA_Setting'][KeyName]['ParName']
     
         #set header for write-mode
         HeaderW = (128 << 24)
@@ -63,8 +59,8 @@ class SetFPGA:
     
         #show settings
         AddrRcv = ((int(ParData, 2) >> 16) & 255)
-        #print 'write FPGA register at Address: %d(%s)' %(AddrRcv, format(AddrRcv, '08b'))
-        logger.debug('write FPGA register at Address: %d(%s)' %(AddrRcv, format(AddrRcv, '08b')))
+        print 'write register to FPGA at Address: %d(%s)' %(AddrRcv, format(AddrRcv, '08b'))
+        #logger.debug('write register to FPGA at Address: %d(%s)' %(AddrRcv, format(AddrRcv, '08b')))
         
         RegisterRcv = ((int(ParData, 2) >> 8) & 255) #bit mask and slice info at 16-9 bit
         RegisterRcv = format(RegisterRcv, '08b') #8bit representation
