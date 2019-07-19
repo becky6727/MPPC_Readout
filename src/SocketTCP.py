@@ -26,7 +26,7 @@ class SocketTCP:
         try:
             self.sock.connect((IP, port))
             #print 'Success to connect with TCP/IP'
-            logger.info('Success to connect with TCP/IP')
+            logger.warning('Success to connect with TCP/IP')
             return 0
         except socket.error as e:
             #print '***** !CONNENCTION ERROR! *****'
