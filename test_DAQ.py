@@ -7,6 +7,7 @@ import struct
 import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
 import src.SetFPGA as SetFPGA
+import src.SetSlowControl as SetSlowControl
 
 #---settings for EASIROC module at NPTC--------
 # IPAddr = '192.168.10.11'
@@ -44,7 +45,8 @@ logger.setLevel(logging.DEBUG)
 handler_format = Formatter('%(asctime)s: %(name)s, %(levelname)s, %(message)s')
 
 stream_handler = StreamHandler()
-stream_handler.setLevel(logging.DEBUG)
+#stream_handler.setLevel(logging.DEBUG)
+stream_handler.setLevel(logging.WARNING)
 #stream_handler.setLevel(logging.ERROR) #if want to show no info
 stream_handler.setFormatter(Formatter('%(message)s'))
 
@@ -95,7 +97,21 @@ for i in xrange(0, 5):
 #wait 0.1sec before next step...
 time.sleep(0.1)
 
-#initialize Slow Control(Chip-A)
+#initialize Slow Control and Analog Output Channel
+InitializeSlowCtrl = SetSlowControl.SetSlowControl(SockTCP, ConfigDict)
+
+#0 is Chip-A, 1 is Chip-B
+for ChipSelect in xrange(0, 2):
+    (isDone, SumSC) = InitializeSlowCtrl.SetParameter(ChipSelect)
+
+    if(isDone < 0):
+        sys.exit()
+        pass
+
+    #for debug
+    #print SumSC.replace('0', '.').replace('1', '!')
+    
+    pass
 
 #close
 DAQSockTCP.CloseTCP()
