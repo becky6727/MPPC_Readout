@@ -22,7 +22,433 @@
 	}
     },
     "SlowCtrl_Setting":{
-	"ChipA":{},
-	"ChipB":{}
-    }
+	"ChipA":{
+	    "NC":{
+		"NofBit":4,
+		"Value":[0]
+	    },
+	    "En32Trig":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "EnOR32":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "EnDigOut":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnLVDS":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnProbeOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnLGOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnHGOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppLVDS":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppProbeOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppLGOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppHGOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnBgap":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppBgap":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnDAC":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppDAC":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "DACslope":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "DAC":{
+		"NofBit":10,
+		"Value":[600]
+	    },
+	    "DiscriMask":{
+		"NofBit":1,
+		"Value":[1, 1, 1, 1, 1, 1, 1, 1,
+			 1, 1, 1, 1, 1, 1, 1, 1,
+			 1, 1, 1, 1, 1, 1, 1, 1,
+			 1, 1, 1, 1, 1, 1, 1, 1],
+		"#":["Order of channels is ch32 ---> ch1"]
+	    },
+	    "LatchDiscri":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "ppDiscri":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnDiscri":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "biasTandH":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "EnTandH":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppTandH":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppFS":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnFSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppFSFollow":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "TimeCHGSSh":{
+		"NofBit":3,
+		"Value":[6],
+		"#":["comments: value means time constant", 
+		     "6 -> 25nsec, 5 -> 50nsec, 4 -> 75nsec, 3 -> 100nsec, 2 -> 125nsec, 1 -> 150nsec, 0 -> 175nsec"]
+	    },
+	    "EnHGSSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppHGSSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "TimeCLGSSh":{
+		"NofBit":3,
+		"Value":[5],
+		"#":["comments: value means time constant", 
+		     "6 -> 25nsec, 5 -> 50nsec, 4 -> 75nsec, 3 -> 100nsec, 2 -> 125nsec, 1 -> 150nsec, 0 -> 175nsec"]		
+	    },
+	    "EnLGSSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppLGSSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "PreAmpCtest":{
+		"NofBit":2,
+		"Value":[0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 0],
+		"#":["Higher bit means PA disable, Lower bit does Test capacitance enable",
+		    "Order of channels: ch1 ---> ch32"]
+	    },
+	    "LGPAComp":{
+		"NofBit":4,
+		"Value":[9],
+		"#":["0 -> 7.5pF, 7 -> 0.5pF(500fF), 15 -> No capacitance, 9 -> 3.0pF, 4 -> 6.0 pF",
+		    "Order of bit is LSB -> MSB, for example b0001(1) -> b1000(8)"]
+	    },
+	    "LGPAFback":{
+		"NofBit":4,
+		"Value":[1],
+		"#":["0 -> No capacitance, 1 -> 0.1 pF, 2 -> 0.2 pF, ..., 15 -> 1.5 pF"]
+	    },
+	    "HGPAFback":{
+		"NofBit":4,
+		"Value":[4],
+		"#":["0 -> No capacitance, 8 -> 0.1 pF, 4 -> 0.2 pF, ..., 15 -> 1.5 pF",
+		    "Order of bit is LSB -> MSB, for example b0001(1) -> b1000(8)"]
+	    },
+	    "HGPAComp":{
+		"NofBit":4,
+		"Value":[14],
+		"#":["0 -> 7.5 pF, 1 -> 7.0 pF, 2 -> 6.5 pF, ..., 14 -> 0.5 pF, 15 -> No capacitance"]
+	    },
+	    "EnLGPA":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppLGPA":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnHGPA":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppHGPA":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "biasLGPA":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "Input8bitDAC":{
+		"NofBit":9,
+		"Value":[255, 260, 265, 270, 275, 280, 285, 290,
+			 295, 300, 305, 310, 315, 320, 325, 330,
+			 335, 340, 345, 350, 355, 360, 365, 370,
+			 375, 380, 385, 390, 395, 400, 405, 410],
+		"#":["Order of channels is ch32 ---> ch1"]
+	    },
+	    "ref8bitDAC":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnInputDAC":{
+		"NofBit":1,
+		"Value":[1]
+	    }
+	},
+	"ChipB":{
+	    "NC":{
+		"NofBit":4,
+		"Value":[0]
+	    },
+	    "En32Trig":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "EnOR32":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "EnDigOut":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnLVDS":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnProbeOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnLGOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnHGOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppLVDS":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppProbeOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppLGOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppHGOTAq":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnBgap":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppBgap":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnDAC":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppDAC":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "DACslope":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "DAC":{
+		"NofBit":10,
+		"Value":[830]
+	    },
+	    "DiscriMask":{
+		"NofBit":1,
+		"Value":[1, 1, 1, 1, 1, 1, 1, 1,
+			 1, 1, 1, 1, 1, 1, 1, 1,
+			 1, 1, 1, 1, 1, 1, 1, 1,
+			 1, 1, 1, 1, 1, 1, 1, 1],
+		"#":["Order of channels is ch32 ---> ch1"]
+	    },
+	    "LatchDiscri":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "ppDiscri":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnDiscri":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "biasTandH":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "EnTandH":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppTandH":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppFS":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnFSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppFSFollow":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "TimeCHGSSh":{
+		"NofBit":3,
+		"Value":[5],
+		"#":["comments: value means time constant", 
+		     "6 -> 25nsec, 5 -> 50nsec, 4 -> 75nsec, 3 -> 100nsec, 2 -> 125nsec, 1 -> 150nsec, 0 -> 175nsec"]
+	    },
+	    "EnHGSSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppHGSSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "TimeCLGSSh":{
+		"NofBit":3,
+		"Value":[5],
+		"#":["comments: value means time constant", 
+		     "6 -> 25nsec, 5 -> 50nsec, 4 -> 75nsec, 3 -> 100nsec, 2 -> 125nsec, 1 -> 150nsec, 0 -> 175nsec"]		
+	    },
+	    "EnLGSSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppLGSSh":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "PreAmpCtest":{
+		"NofBit":2,
+		"Value":[0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 0],
+		"#":["Higher bit means PA disable, Lower bit does Test capacitance enable",
+		    "Order of channels is ch1 ---> ch32"]
+	    },
+	    "LGPAComp":{
+		"NofBit":4,
+		"Value":[9],
+		"#":["0 -> 7.5pF, 7 -> 0.5pF(500fF), 15 -> No capacitance, 9 -> 3.0pF, 4 -> 6.0 pF",
+		    "Order of bit is LSB -> MSB, for example b0001(1) -> b1000(8)"]
+	    },
+	    "LGPAFback":{
+		"NofBit":4,
+		"Value":[1],
+		"#":["0 -> No capacitance, 1 -> 0.1 pF, 2 -> 0.2 pF, ..., 15 -> 1.5 pF"]
+	    },
+	    "HGPAFback":{
+		"NofBit":4,
+		"Value":[4],
+		"#":["0 -> No capacitance, 8 -> 0.1 pF, 4 -> 0.2 pF, ..., 15 -> 1.5 pF",
+		    "Order of bit is LSB -> MSB, for example b0001(1) -> b1000(8)"]
+	    },
+	    "HGPAComp":{
+		"NofBit":4,
+		"Value":[14],
+		"#":["0 -> 7.5 pF, 1 -> 7.0 pF, 2 -> 6.5 pF, ..., 14 -> 0.5 pF, 15 -> No capacitance"]
+	    },
+	    "EnLGPA":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppLGPA":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnHGPA":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "ppHGPA":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "biasLGPA":{
+		"NofBit":1,
+		"Value":[0]
+	    },
+	    "Input8bitDAC":{
+		"NofBit":9,
+		"Value":[410, 405, 400, 395, 390, 385, 380, 375,
+			 370, 365, 360, 355, 350, 345, 340, 335,
+			 330, 325, 320, 315, 310, 305, 300, 295,
+			 290, 285, 280, 275, 270, 265, 260, 255],
+		"#":["Order of channels is ch32 ---> ch1"]
+	    },
+	    "ref8bitDAC":{
+		"NofBit":1,
+		"Value":[1]
+	    },
+	    "EnInputDAC":{
+		"NofBit":1,
+		"Value":[1]
+	    }
+	}
+    },
+    "Analog_Output_Setting":{},
+    "HV_DAC_Setting":{}
 }
