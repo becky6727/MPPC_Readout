@@ -449,6 +449,29 @@
 	    }
 	}
     },
-    "Analog_Output_Setting":{},
+    "Analog_Output_Setting":{
+	"ChipA":{
+	    "ChSelect":{
+		"NofBit":1,
+		"Value":[0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 1,
+			 0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 0],
+		"#": ["Only 1 ch should be selected",
+		      "It is forbidden more than 2 ch as analog output"]
+	    }
+	},
+	"ChipB":{
+	    "ChSelect":{
+		"NofBit":1,
+		"Value":[0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 1],
+		"#": ["Only 1 ch should be selected",
+		      "It is forbidden more than 2 ch as analog output"]
+	    }
+	}
+    },
     "HV_DAC_Setting":{}
 }
