@@ -24,7 +24,7 @@ class SocketTCP:
     #connect module at host(IP) and port
     def ConnectTCP(self, IP, port):
         try:
-            self.sock.connect((IP, port))
+            self.sock.connect((IP, socket.htons(port)))
             #print 'Success to connect with TCP/IP'
             logger.warning('Success to connect with TCP/IP')
             return 0
