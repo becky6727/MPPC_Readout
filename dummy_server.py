@@ -20,7 +20,7 @@ Buf = 8
 Server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
 #set IP address and port ID
-Server.bind((IPAddr, PortID))
+Server.bind((IPAddr, socket.htons(PortID)))
     
 #wait connection from client
 #number of connection = 1
