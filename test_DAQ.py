@@ -8,6 +8,7 @@ import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
 import src.SetFPGA as SetFPGA
 import src.SetSlowControl as SetSlowControl
+import src.SetAnalogOutput as SetAnalogOutput
 
 #---settings for EASIROC module at NPTC--------
 # IPAddr = '192.168.10.11'
@@ -99,19 +100,33 @@ time.sleep(0.1)
 
 #initialize Slow Control and Analog Output Channel
 InitializeSlowCtrl = SetSlowControl.SetSlowControl(SockTCP, ConfigDict)
+InitializeAnalog = SetAnalogOutput.SetAnalogOutput(SockTCP, ConfigDict)
 
 #0 is Chip-A, 1 is Chip-B
 for ChipSelect in xrange(0, 2):
-    (isDone, SumSC) = InitializeSlowCtrl.SetParameter(ChipSelect)
 
-    if(isDone < 0):
+    #initialize slow control data
+    (isDoneSC, SumSC) = InitializeSlowCtrl.SetParameter(ChipSelect)
+
+    if(isDoneSC < 0):
         sys.exit()
         pass
 
+    #initialize analog output setting
+    (isDoneAnalog, SumAnalog) = InitializeAnalog.SetParameter(ChipSelect)
+
+    if(isDoneAnalog < 0):
+        sys.exit()
+        pass
+        
     #for debug
     #print SumSC.replace('0', '.').replace('1', '!')
-    
+    #print ''
+    #print SumAnalog.replace('0', '.').replace('1', '!')
+
     pass
+
+#DAQ mode selection
 
 #close
 DAQSockTCP.CloseTCP()
