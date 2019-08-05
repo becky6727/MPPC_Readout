@@ -1,6 +1,8 @@
 import src.SocketTCP as SocketTCP
+import src.TransferDataFormat as TransferDataFormat
 import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
+import struct
 
 #-------------------------------------------------
 # class for initializing Slow Control Parameters
@@ -10,18 +12,16 @@ from logging import getLogger, StreamHandler, Formatter, FileHandler
 logger = getLogger('DAQ log').getChild('SetSlowCtrl')
 
 #header for writing data
-HeaderW = (128 << 24)
+HeaderW = 0x80
 
 #address for various modes
-Addr_Data = (10 << 16)
-Addr_SCMode = (1 << 16)
-Addr_StartCycle = Addr_SCMode
-Addr_LoadSC = Addr_SCMode
+Addr_Data = 0x0a
+Addr_SCMode = 0x01
 
 #register for various modes
-SCMode = (240 << 8)
-StartCycle = (242 << 8)
-LoadSC = (241 << 8)
+SCMode = 0x0c
+StartCycle = 0xf2
+LoadSC = 0xf1
 
 #paramters, do not arange the order of list!!!
 ParNameList = ['NC', 'En32Trig', 'EnOR32', 'EnDigOut', 'EnLVDS', 'EnProbeOTAq', 'EnLGOTAq', 'EnHGOTAq', 'ppLVDS', 'ppProbeOTAq',
@@ -31,6 +31,9 @@ ParNameList = ['NC', 'En32Trig', 'EnOR32', 'EnDigOut', 'EnLVDS', 'EnProbeOTAq', 
                'HGPAFback', 'HGPAComp', 'EnLGPA', 'ppLGPA', 'EnHGPA', 'ppHGPA', 'biasLGPA', 'Input8bitDAC', 'ref8bitDAC',
                'EnInputDAC'] 
 
+#for data transfer
+TransferTCP = TransferDataFormat.TransferDataFormat()
+
 class SetSlowControl:
 
     def __init__(self, sock, Dict):
@@ -39,10 +42,10 @@ class SetSlowControl:
         pass
 
     def RunSCMode(self):
-        Sig_SCMode = HeaderW + Addr_SCMode + SCMode
-        Sig_SCMode = format(Sig_SCMode, '032b')
-
+        
+        Sig_SCMode = TransferTCP.PackTCP(HeaderW, Addr_SCMode, SCMode)
         self.sock.SendTCP(Sig_SCMode)
+        
         Recv_Sig_SCMode = self.sock.RecvTCP(len(Sig_SCMode))
 
         if(Sig_SCMode and Recv_Sig_SCMode):
@@ -56,10 +59,10 @@ class SetSlowControl:
         return 0
     
     def RunStartCycle(self):
-        Sig_StartCycle = HeaderW + Addr_StartCycle + StartCycle
-        Sig_StartCycle = format(Sig_StartCycle, '032b')
-        
+
+        Sig_StartCycle = TransferTCP.PackTCP(HeaderW, Addr_SCMode, StartCycle)
         self.sock.SendTCP(Sig_StartCycle)
+
         Recv_Sig_StartCycle = self.sock.RecvTCP(len(Sig_StartCycle))
         
         if(Sig_StartCycle and Recv_Sig_StartCycle):
@@ -73,10 +76,10 @@ class SetSlowControl:
         return 0
 
     def RunLoadSC(self):
-        Sig_LoadSC = HeaderW + Addr_LoadSC + LoadSC
-        Sig_LoadSC = format(Sig_LoadSC, '032b')
-        
+
+        Sig_LoadSC = TransferTCP.PackTCP(HeaderW, Addr_SCMode, LoadSC)
         self.sock.SendTCP(Sig_LoadSC)
+
         Recv_Sig_LoadSC = self.sock.RecvTCP(len(Sig_LoadSC))
         
         if(Sig_LoadSC and Recv_Sig_LoadSC):
@@ -94,17 +97,16 @@ class SetSlowControl:
         #which chip to be initialized(ChipA = 0, ChipB = 1)
         if(ChipAB):
             Chip = 'ChipB'
-            Addr_Chip = (84 << 8)
+            Chip_Select = 0x54
         else:
             Chip = 'ChipA'
-            Addr_Chip = (148 << 8)
+            Chip_Select = 0x94
             pass
         
         #send selected chip information to FPGA
-        Chip_Mode = HeaderW + Addr_Chip
-        Chip_Mode = format(Chip_Mode, '032b')
-        
+        Chip_Mode = TransferTCP.PackTCP(HeaderW, 0x0, Chip_Select)    
         self.sock.SendTCP(Chip_Mode)
+        
         Recv_Chip_Mode = self.sock.RecvTCP(len(Chip_Mode))
         
         if(Chip_Mode and Recv_Chip_Mode):
@@ -155,15 +157,14 @@ class SetSlowControl:
             Data = 0
             
             #add header and address
-            Data = HeaderW + Addr_Data + (int(SlowCtrlData[i], 2) << 8)
-            Data = format(Data, '032b')
+            Data = TransferTCP.PackTCP(HeaderW, Addr_Data, (int(SlowCtrlData[i], 2)))
             
             #send data via TCP/IP
             self.sock.SendTCP(Data)
             Recv_Data = self.sock.RecvTCP(len(Data))
             
             #for debug
-            Recv_Data = ((int(Recv_Data, 2) >> 8) & 255)
+            Recv_Data = int(struct.unpack('!4B', Recv_Data)[2])
             Recv_Data = format(Recv_Data, '08b')
             
             logger.info('Send: %s ---> Recv: %s' %(SlowCtrlData[i], Recv_Data))
@@ -196,5 +197,4 @@ class SetSlowControl:
             return (-1, SumPar)
 
         return (0, SumPar)
-    
     
