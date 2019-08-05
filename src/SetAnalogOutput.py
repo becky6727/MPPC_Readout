@@ -1,6 +1,8 @@
 import src.SocketTCP as SocketTCP
+import src.TransferDataFormat as TransferDataFormat
 import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
+import struct
 
 #-------------------------------------------------
 # class for initializing Analog output settings
@@ -11,16 +13,18 @@ logger = getLogger('DAQ log').getChild('SetAnalogOutput')
 #logger.setLevel(logging.DEBUG)
 
 #header for writing data
-HeaderW = (128 << 24)
+HeaderW = 0x80
 
 #address for analog output channel setting
-Addr_Analog = (12 << 16)
-Addr_SCMode = (1 << 16)
-Addr_StartCycle = Addr_SCMode
+Addr_Analog = 0x0c
+Addr_SCMode = 0x01
 
 #register for various modes
-SCMode = (240 << 8)
-StartCycle = (242 << 8)
+SCMode = 0xf0
+StartCycle = 0xf2
+
+#for transfer data
+TransferTCP = TransferDataFormat.TransferDataFormat()
 
 class SetAnalogOutput:
 
@@ -30,10 +34,10 @@ class SetAnalogOutput:
         pass
 
     def RunSCMode(self):
-        Sig_SCMode = HeaderW + Addr_SCMode + SCMode
-        Sig_SCMode = format(Sig_SCMode, '032b')
 
+        Sig_SCMode = TransferTCP.PackTCP(HeaderW, Addr_SCMode, SCMode)
         self.sock.SendTCP(Sig_SCMode)
+        
         Recv_Sig_SCMode = self.sock.RecvTCP(len(Sig_SCMode))
 
         if(Sig_SCMode and Recv_Sig_SCMode):
@@ -47,10 +51,10 @@ class SetAnalogOutput:
         return 0
     
     def RunStartCycle(self):
-        Sig_StartCycle = HeaderW + Addr_StartCycle + StartCycle
-        Sig_StartCycle = format(Sig_StartCycle, '032b')
-        
+
+        Sig_StartCycle = TransferTCP.PackTCP(HeaderW, Addr_SCMode, StartCycle)
         self.sock.SendTCP(Sig_StartCycle)
+        
         Recv_Sig_StartCycle = self.sock.RecvTCP(len(Sig_StartCycle))
         
         if(Sig_StartCycle and Recv_Sig_StartCycle):
@@ -68,10 +72,8 @@ class SetAnalogOutput:
         #which chip to be initialized(ChipA = 0, ChipB = 1)
         if(ChipAB):
             Chip = 'ChipB'
-            #Addr_Chip = (84 << 8)
         else:
             Chip = 'ChipA'
-            #Addr_Chip = (148 << 8)
             pass
 
         #initialize variable
@@ -103,15 +105,14 @@ class SetAnalogOutput:
             Data = 0
 
             #add header and address
-            Data = HeaderW + Addr_Analog + (int(AnalogChData[i], 2) << 8)
-            Data = format(Data, '032b')
-
+            Data = TransferTCP.PackTCP(HeaderW, Addr_Analog, int(AnalogChData[i], 2))
+            
             #send data via TCP/IP
             self.sock.SendTCP(Data)
             Recv_Data = self.sock.RecvTCP(len(Data))
 
             #for debug
-            Recv_Data = ((int(Recv_Data, 2) >> 8) & 255)
+            Recv_Data = int(struct.unpack('!4B', Recv_Data)[2])
             Recv_Data = format(Recv_Data, '08b')
 
             logger.info('Send: %s ---> Recv: %s' %(AnalogChData[i], Recv_Data))
