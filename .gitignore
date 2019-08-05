@@ -6,3 +6,6 @@ trush/
 src/*~
 config/*~
 debug.py
+Data/
+test/
+hoge.*
