@@ -37,7 +37,6 @@ class SocketTCP:
             return -1
             pass
         
-    
     def SendTCP(self, Data):
         TotalSent = 0
         LengthData = len(Data)
@@ -61,8 +60,9 @@ class SocketTCP:
             bytes_recd = bytes_recd + len(chunk)
         return b''.join(chunks)
 
+        
     #close connection
     def CloseTCP(self):
         self.sock.close()
-        
+    
 #end of definition
