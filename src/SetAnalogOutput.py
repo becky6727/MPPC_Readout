@@ -3,7 +3,7 @@ import src.TransferDataFormat as TransferDataFormat
 import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
 import struct
-
+from tqdm import tqdm
 #-------------------------------------------------
 # class for initializing Analog output settings
 # ver1.0 2019/07/22 Y.Kibe
@@ -99,7 +99,7 @@ class SetAnalogOutput:
         AnalogChData = [SumPar[i:i+8] for i in xrange(0, len(SumPar), 8)]
 
         #send data
-        for i in xrange(len(AnalogChData)):
+        for i in tqdm(xrange(len(AnalogChData))):
 
             #initialize
             Data = 0
