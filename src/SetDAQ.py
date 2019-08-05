@@ -4,6 +4,7 @@ import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
 import struct
 import time
+from tqdm import tqdm
 
 #-------------------------------------------------
 # class for DAQ mode selection and data transfer
@@ -100,7 +101,9 @@ class SetDAQ:
         
         isErr = False
         Nnow = 0
-
+        pbar = tqdm(NofData)
+        pbar.set_description('Progress of data taking')
+        
         try:
             #data taking
             while(Nnow < NofData):
@@ -121,12 +124,15 @@ class SetDAQ:
                     pass
                 
                 Nnow += len(tmpArray[0])
+                pbar.update(len(tmpArray[0]))
                 
         except KeyboardInterrupt:
             
             logger.info('keyborad interrupt(ctrl-c) is detected!!')
             print 'stop data taking by ctrl-c'
             return self.StopADC()            
+
+        pbar.close()
         
         if(isErr):
             logger.error('error in read data!!')
