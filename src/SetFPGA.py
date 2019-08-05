@@ -1,6 +1,8 @@
 import src.SocketTCP as SocketTCP
+import src.TransferDataFormat as TransferDataFormat
 import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
+import struct
 
 #------------------------------------------
 # class for initializing FPGA parameters
@@ -9,6 +11,12 @@ from logging import getLogger, StreamHandler, Formatter, FileHandler
 
 logger = getLogger('DAQ log').getChild('SetFPGA')
 #logger.setLevel(logging.DEBUG)
+
+#header
+HeaderW = 0x80
+
+#for transfer data
+TransferTCP = TransferDataFormat.TransferDataFormat()
 
 class SetFPGA:
 
@@ -27,14 +35,11 @@ class SetFPGA:
         ParList = self.Dict['FPGA_Setting'][KeyName]['Value']
         ParName = self.Dict['FPGA_Setting'][KeyName]['ParName']
     
-        #set header for write-mode
-        HeaderW = (128 << 24)
-
         #set address to write data
         if(ID != 4):
-            Addr = (ID << 16)
+            Addr = ID
         else:
-            Addr = ((ID + 1) << 16)
+            Addr = ID + 1
             pass
 
         #set parameters
@@ -44,25 +49,24 @@ class SetFPGA:
             ParData = ParData + (ParList[i] << i)
             pass
 
-        #bit mask since data should be specific position(16-9bit)
-        ParData = ((ParData & 255) << 8)
+        #bit mask since data shoul
+        ParData = (ParData & 255)
 
         #Data structure:
         #XXXXXXXX(8bit header) + XXXXXXXX(8bit address) + XXXXXXXX(8bit data) + XXXXXXXX(8bit blank)
-        ParData = HeaderW + Addr + ParData 
-        ParData = format(ParData, '032b')
-    
+        ParData = TransferTCP.PackTCP(HeaderW, Addr, ParData)
+        
         self.sock.SendTCP(ParData)
 
         #recieve data from SiTCP module to confirm
         Recv = self.sock.RecvTCP(len(ParData))
     
         #show settings
-        AddrRcv = ((int(ParData, 2) >> 16) & 255)
+        AddrRcv = (struct.unpack('!4B', ParData)[1] & 255)
         print 'write register to FPGA at Address: %d(%s)' %(AddrRcv, format(AddrRcv, '08b'))
         #logger.debug('write register to FPGA at Address: %d(%s)' %(AddrRcv, format(AddrRcv, '08b')))
         
-        RegisterRcv = ((int(ParData, 2) >> 8) & 255) #bit mask and slice info at 16-9 bit
+        RegisterRcv = (struct.unpack('!4B', ParData)[2] & 255) #bit mask and slice info at 16-9 bit
         RegisterRcv = format(RegisterRcv, '08b') #8bit representation
         RegisterRcv = RegisterRcv[::-1] #reverse list
     
