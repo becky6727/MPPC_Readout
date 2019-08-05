@@ -3,6 +3,7 @@ import src.TransferDataFormat as TransferDataFormat
 import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
 import struct
+from tqdm import tqdm
 
 #-------------------------------------------------
 # class for initializing Slow Control Parameters
@@ -151,7 +152,7 @@ class SetSlowControl:
             return (-1, SumPar)
         
         #send slow control data to FPGA
-        for i in xrange(len(SlowCtrlData)):
+        for i in tqdm(xrange(len(SlowCtrlData))):
             
             #initialize
             Data = 0
