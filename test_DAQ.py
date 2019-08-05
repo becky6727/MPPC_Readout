@@ -1,4 +1,4 @@
-import os, sys, time
+import os, sys, time, datetime
 import json
 import socket
 import argparse
@@ -9,6 +9,10 @@ from logging import getLogger, StreamHandler, Formatter, FileHandler
 import src.SetFPGA as SetFPGA
 import src.SetSlowControl as SetSlowControl
 import src.SetAnalogOutput as SetAnalogOutput
+import src.SetDAQ as SetDAQ
+import src.SetUDPCtrl as SetUDPCtrl
+#from sitcpy import to_bytes, to_bytearray
+import numpy
 
 #---settings for EASIROC module at NPTC--------
 # IPAddr = '192.168.10.11'
@@ -36,10 +40,18 @@ parser.add_argument('-config',
                     default = './config/Settings.json',
                     help = 'set configuration file')
 
+parser.add_argument('-daq',
+                    type = int,
+                    dest = 'DAQMode',
+                    default = '3',
+                    help = 'set DAQ mode(ADC, TDC, or ADC & TDC)')
+
 args = parser.parse_args()
 
 #log file settings
-Log = 'test.log'
+dt_now = datetime.datetime.now()
+Log = './log/%04d-%02d-%02d_%02dh%02dm%02ds.log' %(dt_now.year, dt_now.month, dt_now.day,
+                                                   dt_now.hour, dt_now.minute, dt_now.second)
 logger = getLogger('DAQ log')
 logger.setLevel(logging.DEBUG)
 
@@ -127,6 +139,57 @@ for ChipSelect in xrange(0, 2):
     pass
 
 #DAQ mode selection
+DAQMode = args.DAQMode
+DAQCtrl = SetDAQ.SetDAQ(SockTCP)
+
+#initialize DAQ
+isRunDAQ = DAQCtrl.RunDAQMode()
+
+if(isRunDAQ < 0):
+    sys.exit()
+    pass
+
+isSelectDAQ = DAQCtrl.SelectDAQ(DAQMode)
+
+if(isSelectDAQ < 0):
+    sys.exit()
+    pass
+
+#Slow control with UDP connection
+isDebug = False
+
+if(isDebug):
+    UDP = SetUDPCtrl.SetUDPCtrl(IPAddr, PortID)
+    
+    HV = 55.0    
+    isHV = UDP.SetHVDAC(HV)
+    
+    print isHV
+    pass
+
+#data collection from device
+NofData = 10000
+OutputFile = 'hoge.dat'
+
+DataArray = DAQCtrl.TransferDataFromDevice(NofData)
+DataArray = numpy.array(DataArray)
+
+#save adc data
+numpy.savetxt(OutputFile,
+              numpy.transpose((DataArray[0],
+                               DataArray[1],
+                               DataArray[2],
+                               DataArray[3])),
+              delimiter = ' ',
+              fmt = '%d')
+
+#stop ADC
+isStopADC = DAQCtrl.StopADC()
+
+time.sleep(10)
 
 #close
 DAQSockTCP.CloseTCP()
+if(isDebug):
+    UDP.Finalize()
+    pass
