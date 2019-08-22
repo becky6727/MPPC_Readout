@@ -36,13 +36,13 @@ class SetAnalogOutput:
     def RunSCMode(self):
 
         Sig_SCMode = TransferTCP.PackTCP(HeaderW, Addr_SCMode, SCMode)
-        self.sock.SendTCP(Sig_SCMode)
-        
-        Recv_Sig_SCMode = self.sock.RecvTCP(len(Sig_SCMode))
+
+        Nsnt = self.sock.SendTCP(Sig_SCMode)
+        Recv_Sig_SCMode = self.sock.RecvTCP(Nsnt)
 
         if(Sig_SCMode and Recv_Sig_SCMode):
-            #logger.debug('Set Slow Control Mode')
-            print 'Set Slow Control Mode'
+            logger.info('Set Slow Control Mode')
+            #print 'Set Slow Control Mode'
         else:
             logger.error('failure to send Slow Control Mode!!')
             return -1
@@ -53,13 +53,13 @@ class SetAnalogOutput:
     def RunStartCycle(self):
 
         Sig_StartCycle = TransferTCP.PackTCP(HeaderW, Addr_SCMode, StartCycle)
-        self.sock.SendTCP(Sig_StartCycle)
-        
-        Recv_Sig_StartCycle = self.sock.RecvTCP(len(Sig_StartCycle))
+
+        Nsnt = self.sock.SendTCP(Sig_StartCycle)
+        Recv_Sig_StartCycle = self.sock.RecvTCP(Nsnt)
         
         if(Sig_StartCycle and Recv_Sig_StartCycle):
-            #logger.debug('Start Cycle is done......')
-            print 'Start Cycle is done......'
+            logger.info('Start Cycle is done......')
+            #print 'Start Cycle is done......'
         else:
             logger.error('failure to send Start Cycle!!')
             return -1
@@ -99,39 +99,43 @@ class SetAnalogOutput:
         AnalogChData = [SumPar[i:i+8] for i in xrange(0, len(SumPar), 8)]
 
         #send data
-        for i in tqdm(xrange(len(AnalogChData))):
+        for i in tqdm(xrange(len(AnalogChData)), desc = 'Analog output setting %s' %(Chip)):
 
             #initialize
             Data = 0
-
+            AnalogChData[i] = AnalogChData[i][::-1]
+            
             #add header and address
             Data = TransferTCP.PackTCP(HeaderW, Addr_Analog, int(AnalogChData[i], 2))
             
             #send data via TCP/IP
-            self.sock.SendTCP(Data)
-            Recv_Data = self.sock.RecvTCP(len(Data))
+            Nsnt = self.sock.SendTCP(Data)
+            Recv = self.sock.RecvTCP(Nsnt)
 
             #for debug
-            Recv_Data = int(struct.unpack('!4B', Recv_Data)[2])
-            Recv_Data = format(Recv_Data, '08b')
-
+            Recv_Data = int(struct.unpack('!4B', Recv)[1])
+            #Recv_Data = format(Recv_Data, '08b')
+            Recv_Data = format(Recv_Data, '02x')
+            
             logger.info('Send: %s ---> Recv: %s' %(AnalogChData[i], Recv_Data))
-
+            
             pass
 
-        print 'end of sending Analog Output Channel setting of %s' %(Chip)
+        #misc
+        print ''
+        
+        #print 'end of sending Analog Output Channel setting of %s' %(Chip)
 
         #perform start cycle
         isStartCycle = self.RunStartCycle()
 
         if(isStartCycle < 0):
             return (-1, SumPar)
-
+        
         isSCMode = self.RunSCMode()
-
+        
         if(isSCMode < 0):
             return (-1, SumPar)
-
+        
         return (0, SumPar)
-
     
