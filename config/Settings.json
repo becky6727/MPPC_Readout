@@ -169,7 +169,7 @@
 	    },
 	    "PreAmpCtest":{
 		"NofBit":2,
-		"Value":[0, 0, 0, 0, 0, 0, 0, 0,
+		"Value":[0, 0, 0, 0, 0, 0, 0, 1,
 			 0, 0, 0, 0, 0, 0, 0, 0,
 			 0, 0, 0, 0, 0, 0, 0, 0,
 			 0, 0, 0, 0, 0, 0, 0, 0],
@@ -454,22 +454,24 @@
 	    "ChSelect":{
 		"NofBit":1,
 		"Value":[0, 0, 0, 0, 0, 0, 0, 0,
-			 0, 0, 0, 0, 0, 0, 0, 1,
 			 0, 0, 0, 0, 0, 0, 0, 0,
-			 0, 0, 0, 0, 0, 0, 0, 0],
+			 0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 1, 0, 0, 0, 0, 0, 0],
 		"#": ["Only 1 ch should be selected",
-		      "It is forbidden more than 2 ch as analog output"]
+		      "It is forbidden more than 2 ch as analog output",
+		     "Order is Ch32 ---> Ch01"]
 	    }
 	},
 	"ChipB":{
 	    "ChSelect":{
 		"NofBit":1,
-		"Value":[0, 0, 0, 0, 0, 0, 0, 0,
+		"Value":[1, 0, 0, 0, 0, 0, 0, 0,
 			 0, 0, 0, 0, 0, 0, 0, 0,
 			 0, 0, 0, 0, 0, 0, 0, 0,
-			 0, 0, 0, 0, 0, 0, 0, 1],
+			 0, 0, 0, 0, 0, 0, 0, 0],
 		"#": ["Only 1 ch should be selected",
-		      "It is forbidden more than 2 ch as analog output"]
+		      "It is forbidden more than 2 ch as analog output",
+		     "Order is Ch32 ---> Ch01"]
 	    }
 	}
     },
