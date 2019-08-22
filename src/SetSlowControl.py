@@ -20,7 +20,7 @@ Addr_Data = 0x0a
 Addr_SCMode = 0x01
 
 #register for various modes
-SCMode = 0x0c
+SCMode = 0xf0
 StartCycle = 0xf2
 LoadSC = 0xf1
 
@@ -45,13 +45,13 @@ class SetSlowControl:
     def RunSCMode(self):
         
         Sig_SCMode = TransferTCP.PackTCP(HeaderW, Addr_SCMode, SCMode)
-        self.sock.SendTCP(Sig_SCMode)
-        
-        Recv_Sig_SCMode = self.sock.RecvTCP(len(Sig_SCMode))
+
+        Nsnt = self.sock.SendTCP(Sig_SCMode)
+        Recv_Sig_SCMode = self.sock.RecvTCP(Nsnt)
 
         if(Sig_SCMode and Recv_Sig_SCMode):
-            #logger.debug('Set Slow Control Mode')
-            print 'Set Slow Control Mode'
+            logger.info('Set Slow Control Mode')
+            #print 'Set Slow Control Mode'
         else:
             logger.error('failure to send Slow Control Mode!!')
             return -1
@@ -62,13 +62,13 @@ class SetSlowControl:
     def RunStartCycle(self):
 
         Sig_StartCycle = TransferTCP.PackTCP(HeaderW, Addr_SCMode, StartCycle)
-        self.sock.SendTCP(Sig_StartCycle)
 
-        Recv_Sig_StartCycle = self.sock.RecvTCP(len(Sig_StartCycle))
+        Nsnt = self.sock.SendTCP(Sig_StartCycle)
+        Recv_Sig_StartCycle = self.sock.RecvTCP(Nsnt)
         
         if(Sig_StartCycle and Recv_Sig_StartCycle):
-            #logger.debug('Start Cycle is done......')
-            print 'Start Cycle is done......'
+            logger.info('Start Cycle is done......')
+            #print 'Start Cycle is done......'
         else:
             logger.error('failure to send Start Cycle!!')
             return -1
@@ -79,13 +79,13 @@ class SetSlowControl:
     def RunLoadSC(self):
 
         Sig_LoadSC = TransferTCP.PackTCP(HeaderW, Addr_SCMode, LoadSC)
-        self.sock.SendTCP(Sig_LoadSC)
 
-        Recv_Sig_LoadSC = self.sock.RecvTCP(len(Sig_LoadSC))
+        Nsnt = self.sock.SendTCP(Sig_LoadSC)
+        Recv_Sig_LoadSC = self.sock.RecvTCP(Nsnt)
         
         if(Sig_LoadSC and Recv_Sig_LoadSC):
-            #logger.debug('Load Slow Control data is done......')
-            print 'Load Slow Control data is done......'
+            logger.info('Load Slow Control data is done......')
+            #print 'Load Slow Control data is done......'
         else:
             logger.error('failure to send Load SC!!')
             return -1
@@ -106,13 +106,13 @@ class SetSlowControl:
         
         #send selected chip information to FPGA
         Chip_Mode = TransferTCP.PackTCP(HeaderW, 0x0, Chip_Select)    
-        self.sock.SendTCP(Chip_Mode)
-        
-        Recv_Chip_Mode = self.sock.RecvTCP(len(Chip_Mode))
+
+        Nsnt = self.sock.SendTCP(Chip_Mode)
+        Recv_Chip_Mode = self.sock.RecvTCP(Nsnt)
         
         if(Chip_Mode and Recv_Chip_Mode):
-            #logger.debug('Set Slow Control Parameters of %s:' %(Chip))
-            print 'Set Slow Control Parameters of %s:' %(Chip)
+            logger.info('Set Slow Control Parameters of %s:' %(Chip))
+            #print 'Set Slow Control Parameters of %s:' %(Chip)
         else:
             logger.error('failure to send chip select signal!!')
             return (-1, None)
@@ -124,7 +124,7 @@ class SetSlowControl:
         for i in xrange(len(ParNameList)):
             
             #logger.debug('---> loading %s ......' %(ParNameList[i]))
-            print '---> loading %s ......' %(ParNameList[i])
+            #print '---> loading %s ......' %(ParNameList[i])
             
             NofBit = self.Dict['SlowCtrl_Setting'][Chip][ParNameList[i]]['NofBit']
             Par = self.Dict['SlowCtrl_Setting'][Chip][ParNameList[i]]['Value']
@@ -144,45 +144,49 @@ class SetSlowControl:
             logger.error('Number of Slow Control Parameter is less or lager than 456 bit')
             logger.error('Please check the settings about Slow Control Paramters')
             return (-1, SumPar)
-
+        
         #set Slow Control mode
         isSCMode = self.RunSCMode()
-
+        
         if(isSCMode < 0):
             return (-1, SumPar)
         
         #send slow control data to FPGA
-        for i in tqdm(xrange(len(SlowCtrlData))):
+        for i in tqdm(xrange(len(SlowCtrlData)), desc = 'Slow Ctrl Parameters %s' %(Chip)):
             
             #initialize
             Data = 0
+            SlowCtrlData[i] = SlowCtrlData[i][::-1]
             
             #add header and address
             Data = TransferTCP.PackTCP(HeaderW, Addr_Data, (int(SlowCtrlData[i], 2)))
             
             #send data via TCP/IP
-            self.sock.SendTCP(Data)
-            Recv_Data = self.sock.RecvTCP(len(Data))
+            Nsnt = self.sock.SendTCP(Data)
+            Recv = self.sock.RecvTCP(Nsnt)
             
             #for debug
-            Recv_Data = int(struct.unpack('!4B', Recv_Data)[2])
-            Recv_Data = format(Recv_Data, '08b')
+            Recv_Data = int(struct.unpack('4B', Recv)[1])
+            Recv_Data = format(Recv_Data, '02x')
             
             logger.info('Send: %s ---> Recv: %s' %(SlowCtrlData[i], Recv_Data))
             
             pass
 
+        #misc
+        print ''
+        
         #logger.debug('end of sending Slow Control Parameters of %s' %(Chip))
-        print 'end of sending Slow Control Parameters of %s' %(Chip)
+        #print 'end of sending Slow Control Parameters of %s' %(Chip)
         
         #perform start cycle
         isStartCycle = self.RunStartCycle()
-
+        
         if(isStartCycle < 0):
             return (-1, SumPar)
         
         isSCMode = self.RunSCMode()
-
+        
         if(isSCMode < 0):
             return (-1, SumPar)
         
