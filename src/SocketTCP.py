@@ -1,6 +1,9 @@
 import socket
 import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
+import struct
+import select, Queue
+from sitcpy import to_bytes
 
 #----------------------------------------------------#
 # class for socket connection for TCP/IP
@@ -24,10 +27,10 @@ class SocketTCP:
     #connect module at host(IP) and port
     def ConnectTCP(self, IP, port):
         try:
-            self.sock.connect((IP, socket.htons(port)))
+            self.sock.connect((IP, port))
             #print 'Success to connect with TCP/IP'
             logger.warning('Success to connect with TCP/IP')
-            return 0
+            return self.sock
         except socket.error as e:
             #print '***** !CONNENCTION ERROR! *****'
             #print e
@@ -45,22 +48,22 @@ class SocketTCP:
             if(SentLength == 0):
                 raise RuntimeError('socket conncetion(send) is broken!')
             TotalSent = TotalSent + SentLength
-            
+        return TotalSent
+    
     #MSGLEN is length of sent Data by SendTCP
     def RecvTCP(self, MSGLEN = None):
         if(MSGLEN == None):
             raise RuntimeError('Length for receiving data is not set')
-        chunks = []
+        chunks = ''
         bytes_recd = 0
         while(bytes_recd < MSGLEN):
             chunk = self.sock.recv(min(MSGLEN - bytes_recd, 2048))
             if(chunk == b''):
                 raise RuntimeError('socket connection(recv) broken')
-            chunks.append(chunk)
+            chunks += chunk
             bytes_recd = bytes_recd + len(chunk)
-        return b''.join(chunks)
-
-        
+        return chunks
+    
     #close connection
     def CloseTCP(self):
         self.sock.close()
