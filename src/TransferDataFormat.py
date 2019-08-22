@@ -38,7 +38,8 @@ class TransferDataFormat:
         dummy = 0x0
 
         #pack into 4 byte data
-        DataPack = struct.pack('!I', (header + addr + data + dummy))
+        DataPack = struct.pack('I', (header + addr + data + dummy))
 
         return DataPack
+    
     
