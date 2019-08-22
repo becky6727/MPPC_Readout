@@ -41,35 +41,49 @@ class SetFPGA:
         else:
             Addr = ID + 1
             pass
-
+        
         #set parameters
         ParData = 0
-
+        
         for i in xrange(len(ParList)):
             ParData = ParData + (ParList[i] << i)
             pass
-
-        #bit mask since data shoul
+        
+        #bit mask
         ParData = (ParData & 255)
 
         #Data structure:
         #XXXXXXXX(8bit header) + XXXXXXXX(8bit address) + XXXXXXXX(8bit data) + XXXXXXXX(8bit blank)
         ParData = TransferTCP.PackTCP(HeaderW, Addr, ParData)
         
-        self.sock.SendTCP(ParData)
-
-        #recieve data from SiTCP module to confirm
-        Recv = self.sock.RecvTCP(len(ParData))
-    
+        try:
+            #send data, return byte size to be sent
+            Nsnt = self.sock.SendTCP(ParData)
+        except RuntimeError:
+            return -1
+        
+        try:
+            #recieve data from SiTCP module to confirm
+            Recv = self.sock.RecvTCP(Nsnt)
+        except RuntimeError:
+            return -1
+        
+        if(ParData != Recv):
+            print struct.unpack('I', ParData), struct.unpack('I', Recv)
+            raise RuntimeError('sent and recieved data does not match!')
+        
         #show settings
-        AddrRcv = (struct.unpack('!4B', ParData)[1] & 255)
-        print 'write register to FPGA at Address: %d(%s)' %(AddrRcv, format(AddrRcv, '08b'))
+        AddrRcv = (struct.unpack('4B', Recv)[2] & 255)
+        #print 'write register to FPGA at Address: %d(%s)' %(AddrRcv, format(AddrRcv, '08b'))
         #logger.debug('write register to FPGA at Address: %d(%s)' %(AddrRcv, format(AddrRcv, '08b')))
         
-        RegisterRcv = (struct.unpack('!4B', ParData)[2] & 255) #bit mask and slice info at 16-9 bit
-        RegisterRcv = format(RegisterRcv, '08b') #8bit representation
-        RegisterRcv = RegisterRcv[::-1] #reverse list
-    
+        RegisterRcv = (struct.unpack('4B', Recv)[1] & 255) #bit mask and slice info at 16-9 bit
+        #RegisterRcv = format(RegisterRcv, '08b') #8bit representation
+        RegisterRcv = format(RegisterRcv, '02x') #hex representation
+        #RegisterRcv = RegisterRcv[::-1] #reverse list
+
+        logger.info('Send ---> Recv: %s' %(RegisterRcv))
+        '''
         for i in xrange(len(RegisterRcv)):
             if(ParName[i] == 'none'):
                 continue
@@ -81,6 +95,7 @@ class SetFPGA:
                 logger.info('%s: OFF' %(ParName[i]))
                 pass
             pass
-    
+        '''
+        
         return 0
         
