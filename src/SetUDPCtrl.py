@@ -4,6 +4,7 @@ import logging
 from logging import getLogger, StreamHandler, Formatter, FileHandler
 import struct
 import time
+from tqdm import tqdm
 
 #-------------------------------------------------
 # class for UDP control paramters
@@ -41,14 +42,14 @@ class SetUDPCtrl:
         self.timeout = timeout #1000msec -> 1sec
         self.ip = ip
         self.port = port
-
+        
         #rbcp class for UDP socket
         self.rbcp = rbcp.Rbcp(self.ip, self.port, self.timeout)
-
+        
         print ('connect UDP with address: %s, port: %d' %(self.ip, self.port))
-
+        
         isInitialize = self.Initialize()
-
+        
         pass
 
     def Initialize(self):
@@ -57,8 +58,8 @@ class SetUDPCtrl:
         time.sleep(0.2)
 
         #registers
-        RateADC = struct.pack('!B', 248) #50Hz
-        End_Control = struct.pack('!B', 0)
+        RateADC = struct.pack('B', 248) #50Hz
+        End_Control = struct.pack('B', 0)
 
         #send signal to FPGA
         set_ADC_Rate = self.rbcp.write(addr_Rate, RateADC)
@@ -75,17 +76,17 @@ class SetUDPCtrl:
         
         #change data to bytes
         HVDAC = int(HVC_1* HV + HVC_2)
-
+        
         #bit operation
-        Higher_HVDAC = struct.pack('!B', (HVDAC >> 8))
-        Lower_HVDAC = struct.pack('!B', (HVDAC & 255))
+        Higher_HVDAC = struct.pack('B', (HVDAC >> 8))
+        Lower_HVDAC = struct.pack('B', (HVDAC & 255))
         
         #write data
         higher_rbcp = self.rbcp.write(addr_higher, Higher_HVDAC)
         lower_rbcp = self.rbcp.write(addr_lower, Lower_HVDAC)
         
         #start dac control
-        DAC_Control = struct.pack('!B', 1)
+        DAC_Control = struct.pack('B', 1)
         
         start_DAC = self.rbcp.write(addr_start, DAC_Control)
         
@@ -95,7 +96,7 @@ class SetUDPCtrl:
 
         #set ADC channel to FPGA register
         addr_reg1 = 0x12
-        reg1 = struct.pack('!B', int(data))
+        reg1 = struct.pack('B', int(data))
 
         reg1_rbcp = self.rbcp.write(addr_reg1, reg1)
 
@@ -103,18 +104,18 @@ class SetUDPCtrl:
         time.sleep(0.2)
 
         addr_reg2 = 0x1f
-        reg2 = struct.pack('!B', 1)
+        reg2 = struct.pack('B', 1)
 
         reg2_rbcp = self.rbcp.write(addr_reg2, reg2)
 
         #start read ADC
         addr_reg3 = addr_reg1
-        reg3 = struct.pack('!B', 240)
+        reg3 = struct.pack('B', 240)
 
         reg3_rbcp = self.rbcp.write(addr_reg3, reg3)
 
         addr_reg4 = addr_reg2
-        reg4 = struct.pack('!B', 0)
+        reg4 = struct.pack('B', 0)
 
         reg4_rbcp = self.rbcp.write(addr_reg4, reg4)
 
@@ -124,12 +125,16 @@ class SetUDPCtrl:
         
         addr_rd1 = 0x4
         addr_rd2 = 0x5
-        length_rd = 255
+        length_rd = 1
 
         rd_data1 = self.rbcp.read(addr_rd1, length_rd)
         rd_data2 = self.rbcp.read(addr_rd2, length_rd)
 
-        return (rd_data1* 256) + rd_data2
+        #unpack
+        rd_data1 = struct.unpack('B', rd_data1)
+        rd_data2 = struct.unpack('B', rd_data2)
+
+        return rd_data1 + rd_data2
     
     def MonitorHVStatus(self):
 
@@ -137,11 +142,16 @@ class SetUDPCtrl:
         BiasV = 0.0
         BiasI = 0.0
 
-        V_ADC = self.ReadMADC(3)
-        I_ADC = self.ReadMADC(4)
+        for i in xrange(3):
+            V_ADC = self.ReadMADC(3)
+            pass
 
-        BiasV = ADC2HV* V_ADC
-        BiasI = ADC2uA* I_ADC
+        for i in xrange(3):
+            I_ADC = self.ReadMADC(4)
+            pass
+        
+        BiasV = ADC2HV* ((V_ADC[0] << 8) + V_ADC[1])
+        BiasI = ADC2uA* ((I_ADC[0] << 8) + I_ADC[1])
 
         return (BiasV, BiasI)
     
@@ -168,38 +178,45 @@ class SetUDPCtrl:
         DAC_Bias_B = []
         
         #get bias voltage
-        V_ADC = self.ReadMADC(3)
-        BiasV = ADC2HV* V_ADC
+        for i in xrange(3):
+            V_ADC = self.ReadMADC(3)
+            pass
+        BiasV = ADC2HV* ((V_ADC[0] << 8) + V_ADC[1])
 
         #address for MUX register
         addr_MUX = 0x13
         
-        for i in xrange(0, 33):
+        for i in tqdm(xrange(0, 32), desc = 'Scan Input DAC'):
             
-            MUXData = struct.pack('!B', int(MUXList[i]))
+            MUXData = struct.pack('B', int(MUXList[i]))
             MUX_Reg = self.rbcp.write(addr_MUX, MUXData)
-
+            
             time.sleep(2.0e-3)
-
-            if(i == 32):
-                break
-
+            
             #chip-A
-            rd_ADC = self.ReadMADC(1)
-            rd_ADC = ADC2V* rd_ADC
+            for i in xrange(3):
+                rd_ADC = self.ReadMADC(1)
+                pass
+            rd_ADC_A = ADC2V* ((rd_ADC[0] << 8) + rd_ADC[1])
 
-            DAC_V_A.append(rd_ADC)
-            DAC_Bias_A.append(BiasV - rd_ADC)
+            DAC_V_A.append(rd_ADC_A)
+            DAC_Bias_A.append(BiasV - rd_ADC_A)
 
             #chip-B
-            rd_ADC = self.ReadMADC(2)
-            rd_ADC = ADC2V* rd_ADC
+            for i in xrange(3):
+                rd_ADC = self.ReadMADC(2)
+                pass
+            rd_ADC_B = ADC2V* ((rd_ADC[0] << 8) + rd_ADC[1])
 
-            DAC_V_B.append(rd_ADC)
-            DAC_Bias_B.append(BiasV - rd_ADC)
+            DAC_V_B.append(rd_ADC_B)
+            DAC_Bias_B.append(BiasV - rd_ADC_B)
 
             pass
-        
+
+        #case of MUX = 0 
+        MUXData = struct.pack('B', 0)
+        MUX_Reg = self.rbcp.write(addr_MUX, MUXData)
+
         return (DAC_V_A, DAC_V_B, DAC_Bias_A, DAC_Bias_B)
 
     def Finalize(self):
@@ -208,8 +225,8 @@ class SetUDPCtrl:
         addr_higher = 0x10
         addr_lower = 0x11
 
-        reg_shutdown = struct.pack('!B', 0)
-        reg_start = struct.pack('!B', 1)
+        reg_shutdown = struct.pack('B', 0)
+        reg_start = struct.pack('B', 1)
         
         ishigher = self.rbcp.write(addr_higher, reg_shutdown)
         islower = self.rbcp.write(addr_lower, reg_shutdown)
