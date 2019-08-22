@@ -2,7 +2,7 @@
     "FPGA_Setting":{
 	"Set1":{
 	    "ParName":["none", "Raz_Ch", "Val_Evt", "none", "en_link", "none", "test_r", "test_sc"],
-	    "Value":[0, 0, 1, 0, 1, 0, 0, 0]
+	    "Value":[0, 0, 0, 0, 0, 0, 0, 0]
 	},
 	"Set2":{
 	    "ParName":["load", "cycle", "none", "none", "rst_pa", "select", "rst_r", "rst_sc"],
