@@ -38,12 +38,12 @@ class SetDAQ:
     def RunDAQMode(self):
         Sig_DAQMode = TransferTCP.PackTCP(HeaderW, Addr_DAQ, DAQMode)
         
-        self.sock.SendTCP(Sig_DAQMode)
-        Recv_Sig_DAQMode = self.sock.RecvTCP(len(Sig_DAQMode))
-
+        Nsnt = self.sock.SendTCP(Sig_DAQMode)
+        Recv_Sig_DAQMode = self.sock.RecvTCP(Nsnt)
+        
         if(Sig_DAQMode and Recv_Sig_DAQMode):
-            #logger.debug('Set Slow Control Mode')
-            print 'Set DAQ Select Mode'
+            logger.info('Set Slow Control Mode')
+            #print 'Set DAQ Select Mode'
         else:
             logger.error('failure to send DAQ Select Mode!!')
             return -1
@@ -65,11 +65,11 @@ class SetDAQ:
         
         Sig_ModeSelect = TransferTCP.PackTCP(HeaderW, Addr_DAQ, mode)
         
-        self.sock.SendTCP(Sig_ModeSelect)
-        Recv_Sig_ModeSelect = self.sock.RecvTCP(len(Sig_ModeSelect))
+        Nsnt = self.sock.SendTCP(Sig_ModeSelect)
+        Recv_Sig_ModeSelect = self.sock.RecvTCP(Nsnt)
         
         if(Sig_ModeSelect and Recv_Sig_ModeSelect):
-            #logger.debug('Set Slow Control Mode')
+            #logger.info('Set Slow Control Mode')
             print 'Select DAQ Mode: %s' %(Type_DAQ)
         else:
             logger.error('failure to send select DAQ signal!!')
@@ -83,15 +83,15 @@ class SetDAQ:
         if(NofData <= 0):
             logger.error('Number of data to be taken is not defined!!')
             return -1
-
+        
         #initialize variable
         DataArray = [[] for i in xrange(4)]
         
         #send signal to start data taking
         Sig_DataTake = TransferTCP.PackTCP(HeaderW, Addr_DataTake, 0)
         
-        self.sock.SendTCP(Sig_DataTake)
-        Recv_Sig_DataTake = self.sock.RecvTCP(len(Sig_DataTake))
+        Nsnt = self.sock.SendTCP(Sig_DataTake)
+        Recv_Sig_DataTake = self.sock.RecvTCP(Nsnt)
         
         if(Sig_DataTake and Recv_Sig_DataTake):
             print 'Start data taking......'
@@ -101,17 +101,14 @@ class SetDAQ:
         
         isErr = False
         Nnow = 0
-        pbar = tqdm(NofData)
+        pbar = tqdm(total = int(1.005* NofData))
         pbar.set_description('Progress of data taking')
         
         try:
             #data taking
             while(Nnow < NofData):
 
-                if(Nnow%1000 == 0):
-                    print 'number of event: %d is done' %(Nnow)
-                    pass
-
+                #read data from device
                 tmpArray = self.ReadADC()
                 
                 if(tmpArray == None):
@@ -154,7 +151,7 @@ class SetDAQ:
         headerADC = self._adc_header()
         
         RecvHeader = self.sock.RecvTCP(len(headerADC))
-        RecvHeader = struct.unpack('!3L', RecvHeader)
+        RecvHeader = struct.unpack('3L', RecvHeader)
 
         #check abnormal header
         if(RecvHeader[0] != 0xffffea0c):
@@ -166,7 +163,7 @@ class SetDAQ:
         NofWord = (RecvHeader[1] & 0xffff) #slice lower 16bit
 
         RecvData = self.sock.RecvTCP(4* NofWord)
-        RecvData = struct.unpack('!%dL' %(NofWord), RecvData)
+        RecvData = struct.unpack('%dL' %(NofWord), RecvData)
         
         #analyze data
         for i in xrange(len(RecvData)):
@@ -186,7 +183,7 @@ class SetDAQ:
         return (ChipArray, ChArray, ADCArray, OFArray)
     
     def _adc_header(self, header1 = 1, header2 = 1, header3 = 1):
-        ret = struct.pack('!3L',
+        ret = struct.pack('3L',
                           header1,
                           header2,
                           header3)
@@ -207,4 +204,4 @@ class SetDAQ:
         print 'Stop ADC'
 
         return 0
-        
+    
