@@ -57,11 +57,18 @@ class SocketTCP:
         chunks = ''
         bytes_recd = 0
         while(bytes_recd < MSGLEN):
-            chunk = self.sock.recv(min(MSGLEN - bytes_recd, 2048))
-            if(chunk == b''):
-                raise RuntimeError('socket connection(recv) broken')
-            chunks += chunk
-            bytes_recd = bytes_recd + len(chunk)
+            try:
+                chunk = self.sock.recv(min(MSGLEN - bytes_recd, 2048))
+            except socket.error as e:
+                print e
+                pass
+            else:
+                #if(chunk == b''):
+                #    raise RuntimeError('socket connection(recv) broken')
+                chunks += chunk
+                bytes_recd = bytes_recd + len(chunk)
+                pass
+            pass
         return chunks
     
     #close connection
