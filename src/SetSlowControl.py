@@ -49,6 +49,10 @@ class SetSlowControl:
         Nsnt = self.sock.SendTCP(Sig_SCMode)
         Recv_Sig_SCMode = self.sock.RecvTCP(Nsnt)
 
+        #for debug
+        #tmp = struct.unpack('I', Recv_Sig_SCMode)
+        #print format(tmp[0], '08x')
+        
         if(Sig_SCMode and Recv_Sig_SCMode):
             logger.info('Set Slow Control Mode')
             #print 'Set Slow Control Mode'
@@ -65,6 +69,10 @@ class SetSlowControl:
 
         Nsnt = self.sock.SendTCP(Sig_StartCycle)
         Recv_Sig_StartCycle = self.sock.RecvTCP(Nsnt)
+
+        #for debug
+        #tmp = struct.unpack('I', Recv_Sig_StartCycle)
+        #print format(tmp[0], '08x')
         
         if(Sig_StartCycle and Recv_Sig_StartCycle):
             logger.info('Start Cycle is done......')
@@ -82,6 +90,10 @@ class SetSlowControl:
 
         Nsnt = self.sock.SendTCP(Sig_LoadSC)
         Recv_Sig_LoadSC = self.sock.RecvTCP(Nsnt)
+
+        #for debug
+        #tmp = struct.unpack('I', Recv_Sig_LoadSC)
+        #print format(tmp[0], '08x')
         
         if(Sig_LoadSC and Recv_Sig_LoadSC):
             logger.info('Load Slow Control data is done......')
@@ -110,6 +122,10 @@ class SetSlowControl:
         Nsnt = self.sock.SendTCP(Chip_Mode)
         Recv_Chip_Mode = self.sock.RecvTCP(Nsnt)
         
+        #for debug
+        #tmp = struct.unpack('I', Recv_Chip_Mode)
+        #print format(tmp[0], '08x')
+
         if(Chip_Mode and Recv_Chip_Mode):
             logger.info('Set Slow Control Parameters of %s:' %(Chip))
             #print 'Set Slow Control Parameters of %s:' %(Chip)
