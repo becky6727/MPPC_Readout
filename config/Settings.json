@@ -93,7 +93,7 @@
 	    },
 	    "DAC":{
 		"NofBit":10,
-		"Value":[600]
+		"Value":[800]
 	    },
 	    "DiscriMask":{
 		"NofBit":1,
@@ -169,7 +169,7 @@
 	    },
 	    "PreAmpCtest":{
 		"NofBit":2,
-		"Value":[0, 0, 0, 0, 0, 0, 0, 1,
+		"Value":[0, 0, 0, 0, 0, 0, 0, 0,
 			 0, 0, 0, 0, 0, 0, 0, 0,
 			 0, 0, 0, 0, 0, 0, 0, 0,
 			 0, 0, 0, 0, 0, 0, 0, 0],
@@ -454,9 +454,9 @@
 	    "ChSelect":{
 		"NofBit":1,
 		"Value":[0, 0, 0, 0, 0, 0, 0, 0,
+			 1, 0, 0, 0, 0, 0, 0, 0,
 			 0, 0, 0, 0, 0, 0, 0, 0,
-			 0, 0, 0, 0, 0, 0, 0, 0,
-			 0, 1, 0, 0, 0, 0, 0, 0],
+			 0, 0, 0, 0, 0, 0, 0, 0],
 		"#": ["Only 1 ch should be selected",
 		      "It is forbidden more than 2 ch as analog output",
 		     "Order is Ch32 ---> Ch01"]
