@@ -40,6 +40,10 @@ class SetAnalogOutput:
         Nsnt = self.sock.SendTCP(Sig_SCMode)
         Recv_Sig_SCMode = self.sock.RecvTCP(Nsnt)
 
+        #for debug
+        #tmp = struct.unpack('I', Recv_Sig_SCMode)
+        #print format(tmp[0], '08x')
+        
         if(Sig_SCMode and Recv_Sig_SCMode):
             logger.info('Set Slow Control Mode')
             #print 'Set Slow Control Mode'
@@ -56,6 +60,10 @@ class SetAnalogOutput:
 
         Nsnt = self.sock.SendTCP(Sig_StartCycle)
         Recv_Sig_StartCycle = self.sock.RecvTCP(Nsnt)
+
+        #for debug
+        #tmp = struct.unpack('I', Recv_Sig_StartCycle)
+        #print format(tmp[0], '08x')
         
         if(Sig_StartCycle and Recv_Sig_StartCycle):
             logger.info('Start Cycle is done......')
