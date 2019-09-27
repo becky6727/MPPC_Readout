@@ -11,3 +11,4 @@ hoge.*
 img/.DS_Store
 img/test.jpg
 img/test.png
+read_binary_plot.py
