@@ -494,7 +494,7 @@ class Application(Tk.Frame):
         #--------- DAQ main ---------#
         if(self.PopStart()):
             #----- data taking -----#
-            OutputFile = './Data/Run%04d.ebf' %(self.RunNo)
+            OutputFile = './Data/Run%04d.ebf' %(self.RunNumber)
             DataArray = self.DAQCtrl.TransferDataFromDevice(self.NofEvt)
             
             fout = open(OutputFile, 'wb')
@@ -505,8 +505,10 @@ class Application(Tk.Frame):
             print 'please confirm settings'
             pass
         #-------- END DAQ -----------#
+        self.StartDAQ.config(state = 'disable')
+        
         pass
-
+    
     def LoadSlowCtrlPar(self):
 
         #load configuration file
